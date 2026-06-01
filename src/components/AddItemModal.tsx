@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { AddItemForm, ItemType, QuantityUnit } from '../types';
 
 interface Props {
@@ -25,6 +25,14 @@ function todayStr() {
 }
 
 export function AddItemModal({ onAdd, onClose }: Props) {
+  useEffect(() => {
+    const prev = document.body.style.cssText;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    return () => { document.body.style.cssText = prev; };
+  }, []);
+
   const [type, setType] = useState<ItemType>('ingredient');
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('');

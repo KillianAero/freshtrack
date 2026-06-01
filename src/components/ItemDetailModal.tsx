@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FoodItem, QuantityUnit } from '../types';
 
 interface Props {
@@ -15,6 +15,14 @@ const UNITS: QuantityUnit[] = ['g', 'kg', 'mL', 'L', 'pièce(s)'];
 type Screen = 'actions' | 'edit';
 
 export function ItemDetailModal({ item, onUpdate, onRemove, onClose }: Props) {
+  useEffect(() => {
+    const prev = document.body.style.cssText;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    return () => { document.body.style.cssText = prev; };
+  }, []);
+
   const [screen, setScreen] = useState<Screen>('actions');
   const [usedDone, setUsedDone] = useState(false);
 
