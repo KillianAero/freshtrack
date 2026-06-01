@@ -26,11 +26,8 @@ function todayStr() {
 
 export function AddItemModal({ onAdd, onClose }: Props) {
   useEffect(() => {
-    const prev = document.body.style.cssText;
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    return () => { document.body.style.cssText = prev; };
+    return () => { document.body.style.overflow = ''; };
   }, []);
 
   const [type, setType] = useState<ItemType>('ingredient');
@@ -74,7 +71,7 @@ export function AddItemModal({ onAdd, onClose }: Props) {
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl pb-safe-bottom shadow-2xl overflow-y-auto max-h-[92vh]">
+      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl pb-safe-bottom shadow-2xl overflow-y-auto max-h-[92vh]" style={{ overscrollBehavior: 'contain' }} onTouchMove={(e) => e.stopPropagation()}>
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 rounded-full bg-gray-200" />

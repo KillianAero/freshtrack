@@ -16,11 +16,8 @@ type Screen = 'actions' | 'edit';
 
 export function ItemDetailModal({ item, onUpdate, onRemove, onClose }: Props) {
   useEffect(() => {
-    const prev = document.body.style.cssText;
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    return () => { document.body.style.cssText = prev; };
+    return () => { document.body.style.overflow = ''; };
   }, []);
 
   const [screen, setScreen] = useState<Screen>('actions');
@@ -59,7 +56,7 @@ export function ItemDetailModal({ item, onUpdate, onRemove, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[92vh]">
+      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[92vh]" style={{ overscrollBehavior: 'contain' }} onTouchMove={(e) => e.stopPropagation()}>
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 rounded-full bg-gray-200" />
         </div>
