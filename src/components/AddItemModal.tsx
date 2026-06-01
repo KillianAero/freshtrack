@@ -65,20 +65,29 @@ export function AddItemModal({ onAdd, onClose }: Props) {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl pb-safe-bottom shadow-2xl overflow-y-auto max-h-[92vh]" style={{ overscrollBehavior: 'contain' }} onTouchMove={(e) => e.stopPropagation()}>
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-gray-200" />
+      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl shadow-2xl flex flex-col" style={{ maxHeight: '92dvh' }}>
+        {/* Handle + header — non scrollable */}
+        <div className="flex-shrink-0">
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1 rounded-full bg-gray-200" />
+          </div>
+          <div className="flex items-center justify-between px-5 pt-2 pb-3">
+            <h2 className="text-lg font-bold text-gray-800">Ajouter un élément</h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+              aria-label="Fermer"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
-        <div className="px-5 pt-2 pb-6 space-y-5">
-          <h2 className="text-lg font-bold text-gray-800">Ajouter un élément</h2>
+        {/* Contenu scrollable */}
+        <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-5 safe-bottom" style={{ overscrollBehavior: 'contain' }}>
 
           {/* Type toggle */}
           <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
