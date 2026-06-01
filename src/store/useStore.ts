@@ -36,6 +36,9 @@ export function useStore() {
   }, [fetchItems]);
 
   const addItem = useCallback(async (form: AddItemForm) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     let expiryDate = form.expiryDate;
     if (form.type === 'dish' && form.cookDate && form.shelfLifeDays) {
       const cook = new Date(form.cookDate);
@@ -46,6 +49,7 @@ export function useStore() {
     const { data } = await supabase
       .from('food_items')
       .insert({
+        user_id: user.id,
         name: form.name,
         type: form.type,
         expiry_date: expiryDate,
