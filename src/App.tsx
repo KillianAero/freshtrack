@@ -145,7 +145,7 @@ function MainApp() {
 
       <div className="flex-1 overflow-y-auto">
         {tab === 'suivi' ? (
-          <div className="px-4 pb-4 space-y-2">
+          <div className="px-4 pb-24 space-y-2">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center px-8">
                 <div className="text-6xl mb-4">{items.length === 0 ? '🛒' : '✅'}</div>
