@@ -1,10 +1,7 @@
-const CACHE_NAME = 'freshtrack-v3';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE_NAME = 'freshtrack-v4';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
+  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['/manifest.json'])));
   self.skipWaiting();
 });
 
@@ -19,6 +16,18 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+
+  const url = new URL(e.request.url);
+
+  // index.html : toujours réseau en premier pour avoir la dernière version
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Assets avec hash (JS/CSS) : cache en premier
   e.respondWith(
     caches.match(e.request).then((cached) =>
       cached || fetch(e.request).then((response) => {
