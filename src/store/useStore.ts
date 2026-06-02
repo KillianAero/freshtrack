@@ -78,8 +78,8 @@ export function useStore() {
   }, []);
 
   const removeItem = useCallback(async (id: string) => {
-    await supabase.from('food_items').delete().eq('id', id);
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    const { error } = await supabase.from('food_items').delete().eq('id', id);
+    if (!error) setItems((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
   const updateItem = useCallback(async (id: string, updates: Partial<FoodItem>) => {
