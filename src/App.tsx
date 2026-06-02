@@ -25,8 +25,8 @@ function LoadingScreen() {
   );
 }
 
-function MainApp() {
-  const { items, loading, addItem, removeItem, updateItem } = useStore();
+function MainApp({ userId }: { userId: string }) {
+  const { items, loading, addItem, removeItem, updateItem } = useStore(userId);
   const { user, signOut } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
@@ -234,7 +234,7 @@ export function App() {
 
   if (loading) return <LoadingScreen />;
   if (!user) return <LoginPage />;
-  return <MainApp />;
+  return <MainApp userId={user.id} />;
 }
 
 export default App;

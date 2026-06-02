@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import type { FoodItem, AddItemForm } from '../types';
 import { supabase } from '../lib/supabase';
 
-// Map DB snake_case row → FoodItem camelCase
 function rowToItem(row: Record<string, unknown>): FoodItem {
   return {
     id: row.id as string,
@@ -17,41 +16,23 @@ function rowToItem(row: Record<string, unknown>): FoodItem {
   };
 }
 
-export function useStore() {
+export function useStore(userId: string) {
   const [items, setItems] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchItems = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
+  useEffect(() => {
     setLoading(true);
-    const { data } = await supabase
+    supabase
       .from('food_items')
       .select('*')
-      .order('added_at', { ascending: false });
-    if (data) setItems(data.map(rowToItem));
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchItems();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') fetchItems();
-      if (event === 'SIGNED_OUT') { setItems([]); setLoading(false); }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [fetchItems]);
+      .order('added_at', { ascending: false })
+      .then(({ data }) => {
+        setItems(data ? data.map(rowToItem) : []);
+        setLoading(false);
+      });
+  }, [userId]);
 
   const addItem = useCallback(async (form: AddItemForm) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
     let expiryDate = form.expiryDate;
     if (form.type === 'dish' && form.cookDate && form.shelfLifeDays) {
       const cook = new Date(form.cookDate);
@@ -59,10 +40,10 @@ export function useStore() {
       expiryDate = cook.toISOString().split('T')[0];
     }
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('food_items')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         name: form.name,
         type: form.type,
         expiry_date: expiryDate,
@@ -74,8 +55,8 @@ export function useStore() {
       .select()
       .single();
 
-    if (data) setItems((prev) => [rowToItem(data), ...prev]);
-  }, []);
+    if (!error && data) setItems((prev) => [rowToItem(data), ...prev]);
+  }, [userId]);
 
   const removeItem = useCallback(async (id: string) => {
     const { error } = await supabase.from('food_items').delete().eq('id', id);
@@ -91,8 +72,8 @@ export function useStore() {
     if (updates.quantity !== undefined) dbUpdates.quantity = updates.quantity ?? null;
     if (updates.unit !== undefined) dbUpdates.unit = updates.unit ?? null;
 
-    await supabase.from('food_items').update(dbUpdates).eq('id', id);
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...updates } : i)));
+    const { error } = await supabase.from('food_items').update(dbUpdates).eq('id', id);
+    if (!error) setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...updates } : i)));
   }, []);
 
   return { items, loading, addItem, removeItem, updateItem };
