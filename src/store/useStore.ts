@@ -22,6 +22,12 @@ export function useStore() {
   const [loading, setLoading] = useState(true);
 
   const fetchItems = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data } = await supabase
       .from('food_items')
@@ -33,6 +39,13 @@ export function useStore() {
 
   useEffect(() => {
     fetchItems();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') fetchItems();
+      if (event === 'SIGNED_OUT') { setItems([]); setLoading(false); }
+    });
+
+    return () => subscription.unsubscribe();
   }, [fetchItems]);
 
   const addItem = useCallback(async (form: AddItemForm) => {
